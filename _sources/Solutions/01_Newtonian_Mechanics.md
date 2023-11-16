@@ -1,0 +1,866 @@
+---
+jupytext:
+  formats: ipynb,md:myst
+  text_representation:
+    extension: .md
+    format_name: myst
+    format_version: 0.13
+    jupytext_version: 1.11.1
+kernelspec:
+  display_name: Python 3 (phys-521)
+  language: python
+  name: phys-521
+---
+
+```{code-cell} ipython3
+:tags: [hide-input]
+
+import mmf_setup;mmf_setup.nbinit(quiet=True)
+%matplotlib inline
+import numpy as np, matplotlib.pyplot as plt
+```
+
+# Assignment 1: Newtonian Mechanics
+
+## Rockets
+
+Consider a rocket of mass $m(t)$ which ejects fuel at a rate of $\dot{m}(t) \leq 0$.  Assume that all of the fuel is ejected with speed $v_e$ directed in the $-x$ direction relative to the rocket.
+
+1. Carefully justify the Tsiolkovsky rocket equation derived in class for a rocket
+    moving in one dimension without gravity (or air resistance):
+   
+    \begin{gather*}
+      v(t) = v(0) + v_e\ln\frac{m(0)}{m(t)}.
+    \end{gather*}
+
+    :::{solution}
+    To avoid any issue with how to apply Newton's laws with changing mass, we model the
+    problem in a way we *know* how to solve.  We consider the rocket ejecting chunks of
+    mass $\Delta{m} > 0$ with relative speed $v_e > 0$ in the negative direction every
+    $\Delta{t}$ in time.  Conserving momentum before and after the ejection, we have:
+    
+    \begin{gather*}
+      p = mv = \Delta{m}(v-v_e) + (m-\Delta{m})(v + \Delta{v}),\\
+      v_e \Delta{m} = m\Delta{v} - \Delta{m}\Delta{v},\\
+    \end{gather*}
+    
+    where $v(t+\Delta{t}) = v + \Delta{v}$ is the new velocity after ejecting the chunk.
+    Collecting terms, and assuming that $\Delta{m}$ and $\Delta{v}$ are of the same
+    order, we can cancel the $mv$ and $\Delta m v$ terms, drop the $\Delta{m}\Delta{v}$ term, and
+    divide by $\Delta{t}$ to obtain the following which becomes exact when we take
+    the limit $\Delta{m} \sim \Delta{v} \sim \Delta{t} \rightarrow 0$ while holding
+    fixed $\Delta{m}/\Delta{t} = -\dot{m}$ and $\Delta{v}/\Delta{t} = \dot{v}$:
+    
+    \begin{gather*}
+      v_e \overbrace{\frac{\Delta m}{\Delta t}}^{-\dot{m}(t)} 
+      = m \overbrace{\frac{\Delta v}{\Delta t}}^{\dot{v}(t)} 
+      - \overbrace{\frac{\Delta m \Delta v}{\Delta t}}^{0}
+      \rightarrow  -v_e\dot{m}(t) = m\dot{v}(t), \\
+     \diff{v(t)}{t} = -v_e\frac{1}{m(t)}\diff{m(t)}{t} = -v_e \diff{}{t}\ln m(t).
+    \end{gather*}
+    
+    Since these equations have a meaningful form in the continuum limit, our assumption
+    that  $\Delta{m} \sim \Delta{v} \sim \Delta{t}$ are all of the same order is
+    reasonable and supported, which justifies our neglecting the higher-order term
+    $\Delta m \Delta v$.  If, for example, we had assumed $\Delta v$ to be of higher
+    order in "smallness", then $\Delta v/\Delta t \rightarrow 0$ and we would have
+    $\dot{m} = 0$, which is not physical for this problem.  Likewise, if $\Delta v$
+    were larger (lower order in "smallness"), then $\dot{v}$ would diverge and $\dot{m}$
+    would also have to diverge, which is again not physical *(except possibly in the
+    singular limit of ejecting all the mass at once, but I don't think this gives
+    anything reasonable.)*
+
+    We also note how the two forms of Newton's law appear here in
+    terms of the thrust:
+    
+    \begin{align*}
+      m\dot{v} &= - v_e\dot{m} = F_e,\\
+      \diff{p}{t} &= v\dot{m} + m \dot{v} = (v - v_e)\dot{m}.
+    \end{align*}
+    
+    Here $F_e = - v_e \dot{m} \geq 0$ is called the **thrust of the rocket** and is the
+    force as measured in the frame of the rocket.  This enters the $F=ma$ form of
+    Newton's law.  Conversely, $(v-v_e)\dot{m}$ is in some sense the thrust in the
+    inertial frame.
+    
+    Dimensionally these expression are correct, and it satisfies the following limits:
+
+    1. $v_e = 0$ implies no acceleration, and increasing $v_e$ increases the acceleration.
+    2. $\dot{m} = 0$ implies no acceleration and increasing $\dot{m}$ implies increasing
+        acceleration. 
+    3. $\dot{m}(t) < 0$ which gives a positive acceleration.
+    4. The maximum velocity is unbounded if $m(t) \rightarrow 0$.  It is not limited by $v_e$.
+    5. The equations have the form $m(t)\dot{v}(t) = - v_e\dot{m}(t) = F_e(t)$ where $F_e(t)
+        = -v_e \dot{m}$ is the **thrust** of the rocket.  Thus, in this case, the $F_e =
+        ma$ form of Newton's law seems to be correct rather than $F = \dot{p} = \dot{m}
+        v + m a$ unless you define the external force to be $F_{\mathrm{ext}} =
+        (v-v_e)\dot{m}(t)$, which *may* be defensible as this is the change in momentum
+        in the inertial frame... however, relying on such arguments is asking for
+        trouble.  Break the problem into parts that you are certain about to be safe.
+        *A priori, I might have suspected that $\dot{p} = F_e$ would correctly describe
+        a rocket, but this is not the case.  Working through from what I *know to be
+        true*, I am convinced with the answer, even though it disagrees with my
+        intuition about the $\dot{p} = F$ form of Newton's law being more generally
+        correct.*
+        
+        From another perspective, one might think that, since there is no external
+        force, we should have:
+        
+        \begin{gather*}
+          F_{\mathrm{ext}} = \dot{p} = 0 = \dot{m} v + m \dot{v}, \qquad
+          \dot{v} = -v \frac{\dot{m}}{m},
+        \end{gather*}
+        
+        which is almost correct, but one needs to identify $v$ on the right-hand-side
+        with $v_e$, for which I do not see a compelling argument.
+
+    Integrating, we have the Tsiolkovsky rocket equation
+    
+    \begin{gather*}
+      \int_{v(0)}^{v(t)} \d{v} = -\int_{\ln m(0)}^{\ln m(t)} v_e \d{\,\ln m(t)}\\
+      v(t) - v(0) = -v_e \ln \frac{m(t)}{m(0)} = v_e \ln \frac{m(0)}{m(t)}.
+    \end{gather*}
+    
+    :::
+
+2. This formula is independent of the rate $\dot{m}(t)$ at which fuel is expelled.
+    Explain how this result is consistent with the simple formula for the velocity of the
+    rocket if all of the fuel were to be immediately eject as one blob with speed $v_e$:
+    
+    \begin{gather*}
+      v(t>0) = v_i + v_e\frac{m(0) - m(t)}{m(t)}.
+    \end{gather*}
+   
+    :::{solution}
+    
+    In both cases, the total momentum is conserved $p = m(0)v(0)$, however, in this
+    case, all of the fuel has velocity $v_i -v_e$ whereas with continuous emission, the
+    ejected fuel has a range of velocities from $v_i-v_e$ at the beginning to $v_f - v_e$
+    at the end.  Once the rocket is moving, ejecting fuel is never as efficient at
+    accelerating the rocket as it was before.
+    
+    Another way of thinking about this is that when continuously ejecting the fuel, the
+    initially ejected fuel must accelerate both the rocket and the remaining fuel.  In
+    all the fuel can be ejected at once, this accelerates just the payload, and is much
+    more efficient.
+    
+    This is supported by calculating the energy require to eject the fuel.  If the fuel
+    is ejected suddenly, this is simply the kinetic energy of the fuel. In the
+    continuous burn scenario, the total energy is the sum of the kinetic energy imparted
+    to each chunk of fuel $\Delta m v_e^2/2$ integrated over time:
+    
+    \begin{align*}
+      E_{\text{continuous}} &= \sum \frac{\Delta m}{2} v_e^2 
+      = \int_0^{t} \frac{v_e^2}{2} \dot{m} \d{t} 
+      = v_e^2 \bigl(m(t) - m(0)\bigr),\\
+      E_{\text{sudden}} &= \frac{m(t)-m(0)}{2}v_e^2.
+    \end{align*}
+    
+    Thus, the energy expenditure of both rockets is the same (ignoring loss), but all of
+    is used to accelerate the payload in the sudden launch case, whereas a significant
+    portion goes into accelerating the fuel in the continuous launch case.
+    
+    Note, it is **not** valid to consider these equations as consistent by considering a
+    limiting case – $m(t) - m_0$ is generally not small, although, the two expressions
+    do approach the same form in the $m(t) \approx m_0$ limit.  These two situations are
+    generally very different.
+    
+    :::
+   
+3. Derive the equation of motion for the rocket moving vertically in a gravitational
+   field.
+   
+    :::{solution}
+    
+    We must add the acceleration due to gravity $g>0$ to the rocket equation:
+    
+    \begin{gather*}
+      \ddot{z}(t) = \diff{v(t)}{t} = - v_e\frac{\dot{m}(t)}{m(t)} - g
+      = - v_e\diff{}{t}\ln m(t) - g.
+    \end{gather*}
+    :::
+
+4. Solve these equations for a rocket moving vertically in a constant gravitational
+   field.  Assume that $\dot{m}(t) = \dot{m}$ is constant and find the height $z(t)$.
+   
+    :::{solution}
+    
+    We can still integrate the first equation as before:
+    
+    \begin{gather*}
+      v(t) - v(0) 
+        = -\int_{m(0)}^{m(t)}\d{m} v_e \ln m - \int_0^t \d{t} g\\
+        = -v_e \ln\frac{m(t)}{m(0)} - gt,
+    \end{gather*}
+    
+    which is valid for any $\dot{m}(t)$.  To integrate this further, however, we must
+    now know the form of $m(t)$.  For constant $\dot{m}$, we have $m(t) = m(0) + \dot{m}
+    t$, hence:
+    
+    \begin{gather*}
+      \dot{z}(t) = v(t) = v(0) + v_e \ln\frac{m(0)}{m(0) + \dot{m} t} - gt\\
+      z(t) = z(0) + v(0) t - \frac{g}{2}t^2 
+             + v_e \int_{0}^{t}\ln\frac{1}{1 + \frac{\dot{m}}{m(0)} t}\d{t}\\
+           = z(0) + v(0) t - \frac{g}{2}t^2 + v_e t - v_e\left(\frac{m(0)}{\dot{m}} +
+             t\right)\ln \left(1 + \frac{\dot{m}}{m(0)} t\right)\\
+           = z(0) + v(0)t - \frac{g}{2}t^2 + v_e t - v_e\frac{m(t)}{\dot{m}}\ln \frac{m(t)}{m(0)}.
+    \end{gather*}
+    
+    This form is only valid for constant $\dot{m}(t)$.  Some checks:
+    
+    1. It has the correct dimensions.
+    2. If $v_e$ is zero, the rocket falls as expected:
+    
+       \begin{gather*}
+         z(t) = z(0) + v(0)t - gt^2/2.
+       \end{gather*}
+       
+    3. The sign of the last two terms needs careful consideration.  $\dot{m} < 0$ and
+       $m(t) < m(0)$, so we can make the signs manifest by some rearrangements.  We can
+       also compare with the $-gt^2/2$ term if we use $t = (m(t) - m(0))/\dot{m}$.
+       Finally, we consider the initial motion for small $t$ so that $\epsilon =
+       1-m(t)/m(0) \ll 1$.  In this limit, we have $\ln(1-\epsilon) = -\epsilon
+       -\epsilon^2/2 + \cdots$, hence:
+       
+       \begin{gather*}
+         -\frac{g}{2}t^2 + v_et - v_e \frac{m(t)}{\dot{m}}\ln \frac{m(t)}{m(0)}\\
+         = - \frac{g m^2(0)}{2\dot{m}^2}\epsilon ^2 + \frac{v_e m(0)}{-\dot{m}}
+         \left(\epsilon + (1-\epsilon)\ln(1-\epsilon)\right)\\
+         \approx - \frac{g m^2(0)}{2\dot{m}^2}\epsilon ^2 
+                 + \frac{v_e m(0)}{-\dot{m}}\frac{\epsilon^2}{2}.
+       \end{gather*}
+       
+       Thus, we have liftoff iff we have enough thrust
+       
+       \begin{gather*}
+         \frac{v_e m(0)}{-2\dot{m}} > \frac{g m^2(0)}{2\dot{m}^2}, \\
+         F_e = -v_e \dot{m} > g m(0).
+       \end{gather*}
+       
+    :::
+    
+5. **Bonus**: Briefly estimate how much energy is required to place a payload of $1$kg
+    into a geosynchronous orbit.  How does this depend on the overall mass of the rocket
+    (i.e. is it more efficient to send several small rockets or a single large rocket?
+   
+    :::{solution}
+    
+    Consider trying to launch a rocket with constant $\dot{m}$ and $v_e$.  We shall
+    consider the solution at time $t$ when the fuel $m_f$ is completely burned and all
+    that remains is the payload $m_p = m(t)$:
+
+    \begin{gather*}
+      m_0 = m_p + m_f, \qquad
+      t = -\frac{m_f}{\dot{m}}.
+    \end{gather*}
+
+    To simplify the problem, we introduce dimensionless variables including the mass
+    fraction of the final rocket $\mu = m_p/m_0$ and the initial "gees" $n =
+    \ddot{z}(0)/g = T/m_0g = -v_e\dot{m}/gm_0$ -- the acceleration at time $t=0$ in
+    units of $g$.  Starting with $z_0 = \dot{z}_0 = 0$, we have at the burnout time $t =
+    v_e(1-\mu)/ng$:
+
+    \begin{gather*}
+      \frac{\dot{z}}{v_e} = \frac{\mu-1}{n} - \ln \mu, \qquad
+      \frac{z}{v_e^2/g} = - \frac{(1-\mu)^2}{2n^2} + \frac{1}{n} 
+          + \frac{\mu}{n}(\ln\mu - 1).
+    \end{gather*}
+
+    At this point the rocket will continue to coast in free-fall and has energy per unit mass:
+
+    \begin{gather*}
+      \frac{E}{m_p v_e^2} = \frac{\dot{z}^2}{2v_e^2} + \frac{gz}{v_e^2}
+                          = \frac{(\ln\mu)^2}{2} + \frac{1+\ln\mu - \mu}{n}.
+    \end{gather*}
+
+    This is the energy that must be used to overcome the total gravitational potential
+    energy of the payload.  Note that the last term is always negative since $\mu \in
+    (0,1)$, hence we can maximize the energy by taking $n \rightarrow \infty$.  I.e. we
+    burn the rockets as quickly as possible (like shooting a bullet from a gun).  In
+    this limit we obtain the maximum energy:
+
+    \begin{gather*}
+      E_{\mathrm{max}} = \frac{m_p v_e^2}{2}\frac{(\ln\mu)^2}{2}
+    \end{gather*}
+    
+    A geosychronous orbit has a radius of about $R_{GS} \approx 4\times 10^7$m where the
+    orbital frequency $\omega_{GS} = \sqrt{GM_{e}/R_{GS}^3} = 2\pi / $(24 hours), to be
+    compared with the radius of the earth $R_e \approx 6\times 10^6$m. If one simply
+    uses an estimate of the potential energy required to lift a payload up to a
+    geosynchronous orbit, one finds $\Delta E \approx 5\times 10^7$J for 1kg.
+
+    To simplify the approximation we note that $g_{GS} \approx 0.25$m/s$^2$ and assume a
+    constant gravitational field with $g_{\mathrm{eff}}\sim 1$m/s$^2$.  To compare, this
+    gives a potential difference of $\Delta E = mgh = 3\times 10^7$J so this is of the
+    same order of magnitude.  *(Note, however, that if you treat $g = 9.8$m/s$^2$ as
+    constant you get $\Delta E \approx 3.5\times 10^8$J which is an order of magnitude
+    too large.)*
+
+    However, in addition to the potential energy gain, we must give our payload enough
+    kinetic energy to stay in orbit with speed $v_{GS} = R_{GS}\omega_{GS} \approx
+    3$km/s.  If we launch from the equator, the rocket already has speed $v_0 =
+    R_{e}\omega_{GS} = 0.5$km/s, so we get a small advantage, but still need to provide
+    a considerably velocity of $v_f=2.5$km/s at the top of the orbit corresponding to an
+    additional kinetic energy of $3\times 10^6$J for 1kg.
+
+    Imagine we can launch the rocket up, and have some slick mechanism at the top to
+    change direction without rockets (perhaps a tether attached to a massive satelite
+    already in orbit).  We then can use our previous equation to estimate the mass of
+    fuel required by solving for the final require velocity $v_f$ and height $h =
+    R_{GS} - R_e = 3.6\times10^7$m.  Assuming all the fuel is burned, we then have $m(t)
+    = m_p$
+
+    \begin{gather*}
+      v_f = - g_{\mathrm{eff}}t + v_e\ln\frac{m_0}{m_p},\\
+      v_e\ln\frac{m_0}{m_p} = v_f + g_{\mathrm{eff}}t, \\
+      h = - \frac{g_{\mathrm{eff}}t^2}{2} + v_e t - v_e \frac{m_p}{\dot{m}}\ln\frac{m_p}{m_0}
+        = - \frac{g_{\mathrm{eff}}t^2}{2} + v_e t + \frac{m_p}{\dot{m}}(v_f + g_{\mathrm{eff}}t)
+    \end{gather*}
+
+    where $x = \ln m_0/m_p$.
+
+    To estimate this, we need some information about typical rockets.  The Saturn V
+    produced a thrust of about $T=10^8$N$ = -\dot{m} v_e$ with an exhaust velocity of
+    about $v_e \approx 1$km/s, hence $\dot{m} \approx 10^5$kg/s.
+
+    :::
+
++++ {"tags": ["remove-cell"]}
+
+## Tides
+
+Give a plausible physical argument as to why the distance between the Earth and the Moon is slowly increasing.
+
++++
+
+## Elliptical Orbits
+
+As Kepler showed†, a particle orbiting in gravitational potential $V(r) = \alpha/r$ will
+move along an ellipse.  Will the center of mass of an extended object also move in a
+perfect ellipse?  Provide a **concise** and convincing argument that this will be the
+case, or provide a simple counter example.
+
+† *I do not require you to show it here, but I also expect **you** to be able to derive
+and explain all of Kepler's laws from Newton's law, reducing the 6 degrees of freedom of
+the original 2-body problem to a single effective equation for the relative coordinate
+$r$ in terms of the reduced mass, etc.  I will likely ask you about this during one of
+your exams.*
+
+:::{solution}
+
+Consider a barbell consisting of two masses $m$ connected by a massless rod of length
+$2d$.  If you work out the equations of motion for this you will find that the equations
+of motion for the center of mass do not decouple from the rotation of the barbell,
+showing that barbell rotation will affect the orbit.
+
+As a really simple example, consider an asymmetric barbell with masses $m$ and $M$
+lying along the $x$-axis with $m$ closer at distance $r_0 - d$ and the center or
+mass at distance $r$: 
+
+\begin{align*}
+  r &= \frac{m(r_0-d) + M(r_0+d)}{m+M} = r_0 + \overbrace{\frac{M-m}{m+M}}^{\mu} d, &
+  r_0 &= r - \mu d,\\
+  F_{0} &= -\lambda\left(\frac{m}{(r_0-d)^2} + \frac{M}{(r_0+d)^2}\right),\\
+        &= -\lambda\left(\frac{m}{[r - (\mu + 1) d]^2} + \frac{M}{[r - (\mu - 1) d]^2}\right).
+\end{align*}
+
+Compare this with the barbell rotated by $\pi$ radians so $m_2$ is closest
+
+\begin{align*}
+  r &= \frac{M(r_0-d) + m(r_0+d)}{m+M} = r_0 - \mu d, &
+  r_0 &= r + \mu d,\\
+  F_{\pi} &= -\lambda\left(\frac{m}{(r_0+d)^2} + \frac{M}{(r_0-d)^2}\right),\\
+          &= -\lambda\left(\frac{m}{[r + (\mu + 1) d]^2} + \frac{M}{[r + (\mu - 1) d]^2}\right).
+\end{align*}
+
+These are not the same (plug in some numbers), meaning that the net central force
+depends on the orientation of the barbell.
+
+This particular calculation does not show the dependence on the angle if $m=M$, but we
+demonstrate that even in this case, elliptical orbits are not generally supported with a
+numerical demonstration.  *Note: you must carefully check that your integrator is
+accurate -- in this case, setting $d$ much larger than that specified will produce
+extreme sensitivity (maybe chaos, but I have not computed the Lyapunov exponent),
+rendering long-term integration inaccurate.*
+
+The position and velocity of the rod can be expressed in terms of the center of mass
+coordinate $r = x+\I y$ and the angle $\phi$ of the rod.  I will work with complex
+numbers to simplify the numerical implementation.  Given two vectors represented as
+complex numbers $a$, $b$, the cross-project $\vect{a}\times \vect{b} = (a_x b_y - a_y
+b_x)\uvect{z}$ magnitude is given by the imaginary part $\Im[ \bar{a} b] = \Im[(a_x - \I
+a_y)(b_x + \I b_y)]$.
+
+:::
+
+```{code-cell} ipython3
+:tags: [hide-input]
+
+%matplotlib inline
+import numpy as np, matplotlib.pyplot as plt
+from IPython.display import clear_output
+from scipy.integrate import solve_ivp
+
+def get_a_alpha(r, phi):
+    """Return the accelerations `(a, alpha)`.
+    
+    Arguments
+    ---------
+    r : complex
+       Location of the center of mass.
+    phi : float
+       Angle of barbell.
+       
+    Returns
+    -------
+    a : complex
+       Accleration of the center of mass.
+    alpha : float
+       Angular acceleration from the net torque.
+    """
+    # Global variables are not best practice in general, but they keep
+    # this demo code a bit shorter.  Consider using a class.
+    global d, m, lam, M, I
+    r1 = r + d*np.exp(1j*phi)
+    r2 = r - d*np.exp(1j*phi)
+    F1 = -m * lam * r1 / abs(r1)**3
+    F2 = -m * lam * r2 / abs(r2)**3
+    F = F1 + F2
+    a = F / M
+    torque = ((r1 - r).conj()*F1 + (r2 - r).conj()*F2).imag
+    alpha = torque / I
+    return a, alpha
+
+def compute_dq_dt(t, q):
+    """Return dy/dt.
+    
+    Arguments
+    ---------
+    q : (x, y, phi, dx_dt, dy_dt, dphi_dt)
+       Coordinates and derivatives.
+    """
+    (x, y, phi, dx_dt, dy_dt, dphi_dt) = q
+    r = x + 1j*y
+    a, alpha = get_a_alpha(r=r, phi=phi)
+    return (dx_dt, dy_dt, dphi_dt, a.real, a.imag, alpha)
+
+# Parameters
+d = 0.015        # Radius of barbell
+lam = 1.0        # Strength of the central potential
+m = 0.5          # Mass of particles in barbell
+M = 2*m          # Total mass
+I = 2*m * d**2   # Moment of inertia
+
+# Initial state.  Start with parameters for a circular orbit. Then we can tweak.
+R = 1.0              # Radius of circular orbit
+a_c = lam/R**2       # Cetripital acceleration
+v = np.sqrt(a_c*R)   # Tangential velocity for a circular orbit.
+T = 2*np.pi*R/v      # Period of orbit
+
+r0 = R + 0j          # Start along x-axis
+v0 = 0 + 0.5*v*1j    # moving up along y axis, half speed.
+phi0 = 0
+dphi0 = 0.0          # Not rotating to start
+
+q0 = (r0.real, r0.imag, phi0, v0.real, v0.imag, dphi0)
+
+t_span = (0, 2*T)  # Plot for 2 circular orbits
+res = solve_ivp(compute_dq_dt, t_span=t_span, y0=q0, 
+              atol=1e-10, rtol=1e-10, method='BDF')  # Be careful to check convergence
+
+res_labels = [(res, f"{d=:.3f}")]
+
+# Now we compute a reference state with very small separation.
+d = 0.001        # Radius of barbell
+I = 2*m * d**2   # Moment of inertia
+
+res0 = solve_ivp(compute_dq_dt, t_span=t_span, y0=q0, 
+               atol=1e-10, rtol=1e-10, method='BDF')  # Be careful to check convergence
+res_labels.append((res0, f"{d=:.3f}"))
+
+fig, ax = plt.subplots()
+for _res, _label in res_labels:
+    xs, ys, dxs, dys, phis, dphis = _res.y
+    ax.plot(xs, ys, label=_label)
+ax.legend()
+ax.set(xlabel='x', ylabel='y', aspect=1, title='Center of mass motion of a barbell');
+```
+
+## Central Potentials
+
+Throughout the course we will visit the problem of a Harmonic Oscillator: i.e. the motion of a particle of mass $m$ in a potential $V(r) = \tfrac{1}{2}kr^2$ which might represent a ball connected to an anchored spring with spring constant $k$.  We shall revisit this problem in all formalisms and use it as a basis for understanding chaotic dynamics.
+
+1. Use the effective potential to show that all orbits are bound and that $E$ must
+    exceed $E_{\text{min}} = \sqrt{kl^2/m}$ where $l$ is the angular momentum of the
+    system.
+   
+    :::{solution}
+
+    Following the usual arguments, conservation of angular momentum $l = mr^2\dot{\phi}$
+    and energy $E$ allows us to work with polar coordinates in a plane containing the
+    motion with the potential at the origin.  In terms of these coordinates, the energy
+    is: 
+
+    \begin{gather*}
+      E = \frac{m}{2}\dot{r}^2 + \overbrace{\frac{l^2}{2mr^2} + \frac{k}{2}r^2}^{V_{\text{eff}}(r)}.
+    \end{gather*}
+
+    Since the kinetic energy is positive, one has:
+
+    \begin{gather*}
+      E \geq E_{\min} = \min_{r}\frac{l^2}{2mr^2} + \frac{k}{2}r^2.
+    \end{gather*}
+
+    Extremizing this last term, we find that the minimum occurs for $r=r_0$ with
+
+    \begin{gather*}
+      r_0^2 = \sqrt{\frac{l^2}{km}} = \frac{l}{m\omega}, \qquad
+      E_{\min}(r_0) = \sqrt{\frac{kl^2}{m}} = l\omega.
+    \end{gather*}
+
+    This is the radius of the circular orbit.  To connect with the usual quantum
+    mechanical formulation, we have used $k = m\omega^2$. 
+
+    Unlike with the Coulomb or Newton potentials, the HO potential increases without
+    bound, thus, any give orbit is bound below $r \lesssim \sqrt{2E/k} =
+    \sqrt{2E/m\omega^2}$ (valid for large $r$ or $E$).
+    
+    :::
+    
+2. Verify that the orbit is a closed ellipse with the origin at the center of the
+    potential.  (Compare your result with the formulas in the book for problem 1.10 (b).)
+
+    :::{solution}
+
+    That the orbits are closed should be clear from the special property of the harmonic
+    oscillator is that the motion in each direction separates:
+
+    \begin{gather*}
+      m \ddot{\vect{r}} = - m \omega^2\vect{r}, \\
+      m \ddot{x} = -m \omega^2 x, \qquad
+      m \ddot{y} = -m \omega^2 y, \qquad
+      m \ddot{z} = -m \omega^2 z.
+    \end{gather*}
+
+    Using the conservation of angular momentum, we can as usual consider the motion in
+    the $xy$ plane with the solution:
+
+    \begin{gather*}
+      x(t) = \frac{v_x(0)}{\omega}\sin(\omega t) + x(0) \cos(\omega t), \\
+      y(t) = \frac{v_y(0)}{\omega}\sin(\omega t) + y(0) \cos(\omega t).
+    \end{gather*}
+
+    Thus, the period of the $x$ and $y$ motions are the same, and the orbit will close.
+    We can also see from this solution, that the trajectory will be an ellipse centered
+    on the potential and that the period of the orbit $T_\phi = 2\pi/\omega =
+    2\pi\sqrt{m/k}$ will be twice the period of radial oscillation $T_r = T_\phi/2$ from
+    $r_-$ to $r_+$ and back.  We also see that the period $T_\phi$ is independent of $E$
+    and $l$, the simple result alluded to in part 3. of the problem.  Note, that this
+    does not simply follow from dimensional arguments since there is a dimensionless
+    parameter $\kappa = E/l\omega$ to be discussed below that could in principle alter
+    the period.  It turns out, however, that the period does not depend on this
+    quantity.
+    
+    :::
+    
+    :::{solution} Alternative Solution: Radial Equation
+
+    The previous approach suffices as a complete
+    solution, but we can also derive this the long way directly from the radial
+    equation, integrating from the point of closest approach $r_-$ at time $t=0$ when
+    $\phi = 0$, to the point of furthest approach $r_+$ at time $t=t$ where
+    $V_e(r_{\pm}) = E$ and $\phi = \phi$.
+
+    \begin{gather*}
+      \dot{r} = \pm\sqrt{\frac{2}{m}}\sqrt{E - V_e(r)}
+      = \diff{r}{\phi} \dot{\phi} = \diff{r}{\phi} \frac{l}{mr^2},\\
+      \diff{r}{\phi} = \frac{r^2}{l}\sqrt{2m[E-V_e(r)]}\\
+                     = \frac{r^2}{l}\sqrt{2mE - mkr^2 - \frac{l^2}{r^2}}\\
+      t = \int_{0}^{t}\d{t} 
+      = \int_{r_-}^{r} \d{r}\frac{1}{\sqrt{\frac{2}{m}}\sqrt{E - V_e(r)}}, \\
+      \phi = \int_{0}^{\phi} \d{\phi} 
+      = \int_{r_-}^{r} \d{r}\frac{l}{\sqrt{2mr^4\Bigl(E - V_e(r)\Bigr)}}.
+    \end{gather*}
+
+    An acceptable answer would be to guess a correct elliptical form $r(\phi)$ and then
+    show that the differential equation is satisfied:
+    
+    \begin{gather*}
+      r(\phi) = \frac{b}{\sqrt{1-\epsilon^2\cos^2\phi}}, \\
+      \cos^2\phi = \epsilon^2\left(1-\frac{b^2}{r^2}\right) = \alpha + \beta r^{-2},\\
+      \sin^2\phi = 1-\epsilon^2\left(1-\frac{b^2}{r^2}\right) = 1 - \alpha - \beta r^{-2},\\
+      \diff{r}{\phi} = \frac{b\epsilon^2\cos\phi\sin\phi}{\sqrt{1-\epsilon^2\cos^2(\phi)}^3}\\
+      \left(\frac{l}{r^2}\diff{r}{\phi}\right)^2 = \frac{l^2\epsilon^4\cos^2\phi\sin^2\phi}
+                                                        {b^2(1-\epsilon^2\cos^2\phi)}\\
+       = \frac{l^2r^2\epsilon^4}{b^4}(\alpha + \beta r^{-2})(1-\alpha - \beta r^{-2}).
+    \end{gather*}
+    
+    Expanded, the last equation has three terms that can be matched to the terms in the
+    differential equation.  A complete answer along these lines should state that
+    rotational invariance allows us to rotate the coordinate system so that the form of
+    the ellipse is completely general.
+    
+    Performing some dimensional analysis, we find the natural frequency-scale $\omega$,
+    length scale $r_0$, and dimensionless constant $\epsilon$:
+
+    \begin{gather*}
+      \omega = \sqrt{k/m}, \qquad
+      r_0 = \sqrt{\frac{l}{m\omega}} = \sqrt[4]{\frac{l^2}{m k}},\\
+      \kappa = \frac{E}{E_{\min}(r_0)} = \frac{E}{l\omega} \geq 1.
+    \end{gather*}
+
+    These give the following dimensionless integrals:
+
+    \begin{gather*}
+      V_e(r_{\pm}) = E \Longrightarrow
+      1 + \left(\frac{r_{\pm}}{r_0}\right)^4 = 2\epsilon\left(\frac{r_{\pm}}{r_0}\right)^2,\\
+      \omega t = \int_{r_-}^{r} \d{r}\frac{\sqrt{k}}{\sqrt{2}\sqrt{E - V_e(r)}}, \\
+      \phi = \int_{0}^{\phi} \d{\phi} 
+      = \int_{r_-}^{r} \d{r}\frac{l}{\sqrt{2mr^4\Bigl(E - V_e(r)\Bigr)}}.
+    \end{gather*}
+
+    We can simplify these by choosing units so that $m = r_0 = \omega = 1$ (mass,
+    length, time) which implies $l = 1$ and $E=\kappa$:
+
+    \begin{gather*}
+      1 + r_{\pm}^4 = 2\kappa r_{\pm}^2,\qquad
+      t = -\int_{r_-}^{r} \d{r}\frac{1}{\sqrt{2\kappa - r^{-2} - r^2}}, \\
+      \phi = -\int_{r_-}^{r} \d{r}\frac{1}{\sqrt{2\kappa r^4 - r^2 - r^6}}.
+    \end{gather*}
+
+    These can be computed, but instead, we turn to the Binet equation which allows for a
+    simpler derivation.
+    
+    :::
+    
+    :::{solution} Alternative Solution: Binet Equation
+    
+    An alternative formulation of the solution is in terms of the [Binet
+    Equation](https://en.wikipedia.org/wiki/Binet_equation) discussed in class:
+
+    \begin{gather*}
+      F(r) = -k r = -\frac{k}{u} = -\frac{l^2}{m}u^2\left(\diff[2]{u}{\phi} 
+      + u \right).
+    \end{gather*}
+
+    With $u' = u'(\phi)$, we have:
+
+    \begin{gather*}
+      \frac{km}{l^2} = \frac{1}{r_0^4} = u^3(u'' + u).
+    \end{gather*}
+
+    Although this is not too hard to solve, since we expect the solution to be an
+    ellipse centered on the origin, we might guess the form of the solution in terms of
+    $x + \I y = u^{-1}e^{\I\phi}$ with
+
+    \begin{gather*}
+      \frac{x^2}{a^2} + \frac{y^2}{b^2} = 1, \\
+      u(\phi) = \sqrt{\frac{\cos^2(\phi)}{a^2} + \frac{\sin^2(\phi)}{b^2}}
+              = \frac{1}{ab\sqrt{2}}\sqrt{a^2+b^2 - (a^2-b^2)\cos(2\phi)}
+      ,\\
+      u''(\phi) + u(\phi) = \frac{2 \sqrt{2} ab}{\sqrt{a^2+b^2 - (a^2-b^2)\cos(2\phi)}^3}
+                          = \frac{1}{a^2b^2u^3(\phi)}.
+    \end{gather*}
+
+    Hence, we have a solution provided $ab = r_0^{2}$, or $a = r_0e^{\xi}$ and $b =
+    r_0e^{-\xi}$ as we are asked to verify.  To complete the solution, we use the
+    initial condition that $b = r_-$ and $a = r_+$ at the turning points, so that 
+
+    \begin{gather*}
+      \frac{b^2}{a^2} = 1 - \epsilon^2 = e^{-2\xi} = \frac{u_+^2}{u_-^2}
+      = \frac{\kappa + \sqrt{\kappa^2 -1}}{\kappa - \sqrt{\kappa^2 -1}},\\
+      \kappa = \frac{e^{\xi} + e^{-\xi}}{2} = \cosh \xi.
+    \end{gather*}
+
+    The final solution is
+
+    \begin{gather*}
+      u(\phi) = r_0^{-1}\sqrt{\cosh(2\xi) - \sinh(2\xi)\cos(2\phi)}.
+    \end{gather*}
+
+    The period can be computed from:
+
+    \begin{gather*}
+      T_\phi = \int_0^{2\pi}\d{\phi}\;\frac{1}{\dot{\phi}}
+             = \frac{m}{l}\int_0^{2\pi}\d{\phi}\;u^{-2}(\phi)
+             = \frac{mr_0^2}{l}\int_0^{2\pi}\d{\phi}\;
+              \frac{1}{\cosh(2\xi) - \sinh(2\xi)\cos(2\phi)}
+            = \frac{2 \pi mr_0^2}{l}
+              \frac{1}{\sqrt{\cosh^2(2\xi) - \sinh^2(2\xi)}}
+            = \frac{2 \pi mr_0^2}{l} = \frac{2 \pi}{\omega}
+    \end{gather*}
+
+    which is independent of $\xi$ as we expected from our initial analysis.  *(To do the
+    integral we have used the following:)*
+
+    \begin{gather*}
+      \int_0^{2\pi}\d{\phi} \frac{1}{a + b \cos(2\phi)} = \frac{2\pi}{\sqrt{a^2-b^2}}.
+    \end{gather*}
+    
+    In the limit of $E \rightarrow E_{\min}$ we have $\kappa \approx 1 +
+    \xi^2/2\rightarrow 1$ so that $\xi \ll 1$ and 
+
+    \begin{gather*}
+      r_0 u(\phi) \rightarrow \sqrt{1 - 2\xi\cos(2\phi)} \approx 1 - \xi\cos(2\phi).
+    \end{gather*}
+
+    Hence, the orbit becomes circular with a small perturbation.  This is easily seen by
+    looking at the ratio $b/a = e^{-2\xi} \rightarrow 1$.  In the limit $E \gg E_{\min}$
+    we have $\xi \gg 1$ so that $b/a \rightarrow 0$ and the orbit becomes highly
+    eccentric.
+
+    :::
+
+3. Prove that the period is independent of the energy and angular momentum.  Could you
+    have anticipated this from simple arguments? Discuss the significance of this result.
+   
+    :::{solution}
+    
+    See the first solution to part 2 above.
+    
+    Some people discuss the change in the area inscribed by the orbit $\d{A} =
+    r^2\d{\phi}/2$. *(You can think of this as a triangle with height $r$ and base
+    $r\d{\phi}$ -- the correction due to $\d{r}$ is of higher order.)*
+    This is related to the conserved angular momentum $l = mr^2\dot{\phi}$:
+    
+    \begin{gather*}
+      \diff{A}{t} = \frac{r^2}{2}\dot{\phi} = \frac{l}{2m}.
+    \end{gather*}
+    
+    This is Kepler's equal area law, which relates the area of the ellipse to the
+    period.  The area of an ellipse is $A = \pi a b$ where the major and minor axes
+    $a=r_+$ and $b=r_-$ satisfy:
+    
+    \begin{gather*}
+      E = V_e(r) = \frac{kr^2}{2} + \frac{l^2}{2mr^2},\\
+      0 = mkr^4 + l^2 - 2mEr^2 = mk(r-r_-^2)(r-r_+^2),\\
+      r_-r_+ = \sqrt{\frac{l^2}{mk}} = \frac{l}{\sqrt{mk}}.
+    \end{gather*}
+
+    This explicitly shows that the area is independent of $E$,
+    
+    \begin{gather*}
+      A = \frac{lT}{2m} = \pi ab = \pi \frac{l}{\sqrt{km}},\\
+      T = 2\pi \sqrt{\frac{m}{k}} = \frac{2\pi}{\omega}.
+    \end{gather*}
+    
+    Hence, the period is is indeed independent of the amplitude.
+    :::
+
++++
+
+## Scattering
+
+Do problem 1.17 from the {cite:p}`Fetter:2003`.
+
+> A uniform beam of particles with energy $E$ is scattered by an attractive (top-hat or
+> spherical square-well) central potential:
+>
+> \begin{gather*}
+    V(r) = \begin{cases}
+      -V_0 & r < a\\
+      0 & r \geq a
+    \end{cases}
+  \end{gather*}
+> 
+> Show that the orbit of a particle is identical to a light ray refracted by a sphere of
+> radius $a$ with a particular index of refraction $n$ (see the book). Compute the
+> differential cross-section and show that it is
+>
+> \begin{gather*}
+    \diff{\sigma}{\Omega} = \frac{n^2 a^2}{4\cos(\tfrac{1}{2}\theta)}
+    \frac{\bigl[n\cos(\tfrac{1}{2}\theta) - 1\bigr](n-\cos\tfrac{1}{2}\theta)}
+         {(1 + n^2 - 2n \cos\tfrac{1}{2}\theta)^2}
+  \end{gather*}
+>
+> Compute the total cross-section $\sigma$.
+
+:::{solution}
+
+To derive Snell's law, consider $V(x, y) = -V_0\Theta(x)$ with the boundary along the
+$y$ axis.  The force $\vect{F} = -\vect{\nabla}V = V_0\delta(x)\uvect{x}$ has no
+$y$-component, so $p_y$, and energy are conserved.
+
+|        | $x<0$                          | $x>0$                                |
+|--------|--------------------------------|--------------------------------------|
+|Momentum| $(p_x, p_y)$                   | $(q_x, p_y)$                         |
+|Energy  | $E=\frac{m}{2}(p_x^2 + p_y^2)$ | $E=\frac{m}{2}(q_x^2 + p_y^2) - V_0$ |
+|Angle   | $\theta_i$                     | $\theta_r$                           |
+
+This gives:
+
+\begin{align*}
+  q_x^2 &= p_x^2 + \frac{2V_0}{m},\\
+  \sin{\theta_i} &= \frac{p_y}{\sqrt{p_x^2+p_y^2}},\\
+  \sin{\theta_r} &= \frac{p_y}{\sqrt{q_x^2+p_y^2}}
+                  = \frac{p_y}{\sqrt{p_x^2 + p_y^2 + \frac{2V_0}{m}}},\\
+  \frac{\sin\theta_i}{\sin\theta_r} 
+      &= \sqrt{1 + \frac{2V_0}{m(p_x^2 + p_y^2)}}
+       = \sqrt{1 + \frac{V_0}{E}} = n
+\end{align*}
+
+Thus, we have proved Snell's law with an effective index of refraction
+$n=\sqrt{(E+V_0)/E}$ as advertised.
+
+Here is the geometry of the problem.
+
+![Scattering Solution](Scattering.png)
+
+Below we check our solution numerically.  (Note: there was a transcription error in the original
+statement of $\d{\sigma}/\d{\Omega}$.  The book is correct as our code below shows.)  We
+draw the scattered rays to make sure everything looks reasonable.
+
+Integrating this gives
+
+\begin{gather*}
+  \sigma = \int \diff{\sigma}{\Omega}\d\Omega =
+  \int_{0}^{\theta_{\max}}\!\!\!\!\!
+    2\pi\sin\theta \d{\theta}\;
+    \frac{\bigl[n\cos(\tfrac{1}{2}\theta) - 1\bigr](n-\cos\tfrac{1}{2}\theta)}
+         {(1 + n^2 - 2n \cos\tfrac{1}{2}\theta)^2}
+   = \pi a^2.
+\end{gather*}
+
+Note: we must be careful to limit the integrand to the range of the maximally scattered
+ray:
+
+\begin{gather*}
+  \theta_\max = 2\sin^{-1}\frac{1}{n} - \pi.
+\end{gather*}
+    
+:::
+
+```{code-cell} ipython3
+rng = np.random.default_rng(0)
+a = rng.random()
+n = 1/rng.random()   # keep n > 1
+
+fig, ax = plt.subplots()
+th = np.linspace(0, 2*np.pi, 200)
+ax.plot(a*np.cos(th), a*np.sin(th), 'C0', lw=2)
+ax.set_aspect(1)
+
+b = np.linspace(1e-5, a-1e-5, 10)
+th_i = np.arcsin(b/a)
+th_r = np.arcsin(np.sin(th_i)/n)
+theta = 2*(th_r - th_i)
+alpha = 2*th_r - th_i
+dsigma_dOmega = b / np.sin(theta) * a * np.cos(th_i) / 2 / (np.cos(th_i)/n/np.cos(th_r) - 1)
+
+c2 = np.cos(theta/2)
+dsigma_dOmega_book = (n*a)**2 / 4 / c2 * (n*c2 - 1) * (n - c2)/(1 + n**2 - 2*n * c2)**2
+assert np.allclose(dsigma_dOmega, dsigma_dOmega_book)
+final_point = a*np.exp(1j*alpha) + 1.0*np.exp(1j*theta)
+ax.plot([-1.2 + 0*b, -a*np.cos(th_i), a*np.cos(alpha), final_point.real],
+        [b, b, a*np.sin(alpha), final_point.imag], 'k-');
+
+# Numerical check integral for total cross-section
+th_max = abs(2*(np.arcsin(1/n) - np.pi/2))
+th = np.linspace(0, th_max, 1000)
+c2 = np.cos(th/2)
+denom = 1 + n**2 - 2*n * c2
+
+dsigma_dOmega = (n*a)**2 / 4 / c2 * (n*c2 - 1) * (n - c2)/(1 + n**2 - 2*n * c2)**2
+sigma = np.trapz(2*np.pi*np.sin(th) * dsigma_dOmega, th)
+print(sigma / (np.pi * a**2))
+assert np.allclose(sigma, np.pi * a**2)
+```
